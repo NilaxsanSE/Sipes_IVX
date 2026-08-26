@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: sipes-ivx-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sipes_ivx}
+      POSTGRES_USER: ${POSTGRES_USER:-sipes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sipes_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sipes} -d ${POSTGRES_DB:-sipes_ivx}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: sipes-ivx-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://sipes:sipes_password@db:5432/sipes_ivx}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: sipes-ivx-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
