@@ -1,6 +1,6 @@
 # SIPES IVX
 
-Technical foundation for the SIPES IVX monorepo.
+Technical foundation and core object navigation for the SIPES IVX monorepo.
 
 ## Project Structure
 
@@ -48,9 +48,9 @@ Services:
 ## Verify Connectivity
 
 1. Open http://localhost:5173.
-2. The page should show `SIPES IVX`.
-3. The health panel should show API status as `ok`.
-4. The database status should show `connected`.
+2. The page should show the SIPES IVX overview.
+3. Open http://localhost:8000/api/health and confirm the database status is `connected`.
+4. Open http://localhost:8000/api/objects/tree and confirm the demo hierarchy is returned.
 
 You can also call the backend directly:
 
@@ -101,6 +101,13 @@ npm install
 npm run dev
 ```
 
+Frontend tests:
+
+```bash
+cd frontend
+npm run test
+```
+
 ## Database Migrations
 
 Alembic is configured in `backend/`. Migration files live in `backend/migrations/versions/`.
@@ -111,7 +118,29 @@ Run migrations from the `backend/` directory after the database is available:
 alembic upgrade head
 ```
 
-The initial migration enables the PostGIS extension. The full application data model has intentionally not been added yet.
+The migrations enable PostGIS and create the core object hierarchy tables.
+
+## Demo Data
+
+Seed the demo hierarchy from the running backend container:
+
+```bash
+docker compose exec backend python -m app.db.seed
+```
+
+The demo tree is:
+
+```text
+Germany -> Sachsen -> Dresden -> Site 01 -> Storage Plant -> Container 01 -> Fan 01
+```
+
+## API Documentation
+
+FastAPI documentation is available at:
+
+```text
+http://localhost:8000/docs
+```
 
 ## Repository
 
