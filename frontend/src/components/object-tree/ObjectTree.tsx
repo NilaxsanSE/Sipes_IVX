@@ -109,7 +109,13 @@ function ObjectTreeItem({
         >
           {hasChildren ? isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} /> : null}
         </button>
-        <button className="object-tree__select" type="button" onClick={() => onSelect(node.id)}>
+        <button
+          aria-current={selectedObjectId === node.id ? 'page' : undefined}
+          aria-label={node.name}
+          className="object-tree__select"
+          type="button"
+          onClick={() => onSelect(node.id)}
+        >
           <Factory size={15} aria-hidden="true" />
           <span className="object-tree__name" title={node.name}>
             {node.name}

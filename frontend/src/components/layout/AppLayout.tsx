@@ -60,10 +60,12 @@ export function AppLayout({
       <div className={`app-body ${isSidebarCollapsed ? 'app-body--collapsed' : ''}`}>
         <aside className="sidebar" aria-label="Object navigation">
           <div className="sidebar__header">
-            <div>
-              <span className="section-label">Objects</span>
-              <strong>Hierarchy</strong>
-            </div>
+            {!isSidebarCollapsed && (
+              <div>
+                <span className="section-label">Objects</span>
+                <strong>Hierarchy</strong>
+              </div>
+            )}
             <button
               className="icon-button"
               type="button"
