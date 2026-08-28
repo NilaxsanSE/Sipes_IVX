@@ -45,6 +45,13 @@ class Object(Base):
     )
 
     object_type = relationship("ObjectType")
+    spatial: Mapped["ObjectSpatial | None"] = relationship(
+        "ObjectSpatial",
+        back_populates="object",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        uselist=False,
+    )
     parent: Mapped[Object | None] = relationship(
         "Object",
         remote_side=[id],

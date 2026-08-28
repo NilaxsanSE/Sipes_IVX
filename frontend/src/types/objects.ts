@@ -34,3 +34,39 @@ export type HealthResponse = {
     status: string;
   };
 };
+
+export type PointGeometry = {
+  type: 'Point';
+  coordinates: [number, number];
+};
+
+export type SpatialFeatureProperties = {
+  object_id: string;
+  name: string;
+  key: string;
+  status: ObjectStatus;
+  object_type: string;
+  altitude: number | null;
+  source: string | null;
+};
+
+export type SpatialFeature = {
+  type: 'Feature';
+  geometry: PointGeometry;
+  properties: SpatialFeatureProperties;
+};
+
+export type SpatialFeatureCollection = {
+  type: 'FeatureCollection';
+  features: SpatialFeature[];
+};
+
+export type SpatialObject = {
+  id: string;
+  object_id: string;
+  geometry: PointGeometry;
+  altitude: number | null;
+  source: string | null;
+  created_at: string;
+  updated_at: string;
+};

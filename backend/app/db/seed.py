@@ -1,7 +1,7 @@
 import asyncio
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from app.db.session import AsyncSessionLocal
 from app.models.object import Object
@@ -18,6 +18,13 @@ DEMO_HIERARCHY = [
     ("container", "container-01", "Container 01", "NORMAL"),
     ("fan", "fan-01", "Fan 01", "UNKNOWN"),
 ]
+
+DEMO_SPATIAL_POINTS = {
+    "germany": {"longitude": 10.4515, "latitude": 51.1657, "source": "demo-wgs84"},
+    "sachsen": {"longitude": 13.4589, "latitude": 51.1045, "source": "demo-wgs84"},
+    "dresden": {"longitude": 13.7373, "latitude": 51.0504, "source": "demo-wgs84"},
+    "site-01": {"longitude": 13.7557, "latitude": 51.0348, "source": "demo-wgs84"},
+}
 
 
 async def _get_or_create_object_type(session, key: str, name: str) -> ObjectType:
@@ -41,6 +48,7 @@ async def _get_or_create_object_type(session, key: str, name: str) -> ObjectType
 async def seed_demo_data() -> None:
     async with AsyncSessionLocal() as session:
         parent_id = None
+        seeded_objects: dict[str, Object] = {}
 
         for type_key, object_key, object_name, status in DEMO_HIERARCHY:
             object_type = await _get_or_create_object_type(
@@ -71,6 +79,43 @@ async def seed_demo_data() -> None:
                 object_item.status = status
 
             parent_id = object_item.id
+            seeded_objects[object_key] = object_item
+
+        for object_key, point in DEMO_SPATIAL_POINTS.items():
+            object_item = seeded_objects[object_key]
+            await session.execute(
+                text(
+                    """
+                    INSERT INTO object_spatial (
+                        id,
+                        object_id,
+                        geometry,
+                        altitude,
+                        source
+                    )
+                    VALUES (
+                        :id,
+                        :object_id,
+                        ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326),
+                        NULL,
+                        :source
+                    )
+                    ON CONFLICT (object_id)
+                    DO UPDATE SET
+                        geometry = EXCLUDED.geometry,
+                        altitude = EXCLUDED.altitude,
+                        source = EXCLUDED.source,
+                        updated_at = now()
+                    """
+                ),
+                {
+                    "id": uuid4(),
+                    "object_id": object_item.id,
+                    "longitude": point["longitude"],
+                    "latitude": point["latitude"],
+                    "source": point["source"],
+                },
+            )
 
         await session.commit()
 

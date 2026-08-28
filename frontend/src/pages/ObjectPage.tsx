@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Map as MapIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -19,6 +19,7 @@ import { getObjectTypeName } from '../utils/objectTypes';
 type ObjectPageProps = {
   objectTypesById: Map<string, ObjectType>;
   onCurrentObjectChange: (object: ApiObject | null) => void;
+  hasSpatial: boolean;
 };
 
 type ObjectPageState =
@@ -32,7 +33,7 @@ type ObjectPageState =
     }
   | { status: 'error'; message: string };
 
-export function ObjectPage({ objectTypesById, onCurrentObjectChange }: ObjectPageProps) {
+export function ObjectPage({ objectTypesById, onCurrentObjectChange, hasSpatial }: ObjectPageProps) {
   const { objectId } = useParams();
   const navigate = useNavigate();
   const [state, setState] = useState<ObjectPageState>({ status: 'loading' });
@@ -86,7 +87,9 @@ export function ObjectPage({ objectTypesById, onCurrentObjectChange }: ObjectPag
       ancestors={state.ancestors}
       children={state.children}
       objectTypesById={objectTypesById}
+      hasSpatial={hasSpatial}
       onNavigate={(targetId) => navigate(`/objects/${targetId}`)}
+      onOpenMap={(targetId) => navigate(`/map?objectId=${targetId}`)}
     />
   );
 }
@@ -97,7 +100,9 @@ type ObjectDetailsProps = {
   ancestors: ApiObject[];
   children: ApiObject[];
   objectTypesById: Map<string, ObjectType>;
+  hasSpatial?: boolean;
   onNavigate: (objectId: string) => void;
+  onOpenMap?: (objectId: string) => void;
 };
 
 export function ObjectDetails({
@@ -106,7 +111,9 @@ export function ObjectDetails({
   ancestors,
   children,
   objectTypesById,
+  hasSpatial = false,
   onNavigate,
+  onOpenMap,
 }: ObjectDetailsProps) {
   const breadcrumbItems = useMemo(() => [...ancestors, object], [ancestors, object]);
   const objectTypeName = getObjectTypeName(object.object_type_id, objectTypesById);
@@ -121,7 +128,15 @@ export function ObjectDetails({
           <h1>{object.name}</h1>
           <p>{object.key}</p>
         </div>
-        <StatusBadge status={object.status} />
+        <div className="object-hero__actions">
+          <StatusBadge status={object.status} />
+          {hasSpatial && onOpenMap && (
+            <button className="secondary-button" type="button" onClick={() => onOpenMap(object.id)}>
+              <MapIcon size={16} />
+              View on Map
+            </button>
+          )}
+        </div>
       </section>
 
       <section className="detail-grid">

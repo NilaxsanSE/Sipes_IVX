@@ -1,7 +1,7 @@
-import { ArrowLeft, Home, PanelLeftClose, PanelLeftOpen, Search, UserRound } from 'lucide-react';
+import { ArrowLeft, Home, Map, PanelLeftClose, PanelLeftOpen, Search, UserRound } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { ApiObject, ObjectTreeNode, ObjectType } from '../../types/objects';
 import { ObjectTree } from '../object-tree/ObjectTree';
 import { StatusBadge } from '../status/StatusBadge';
@@ -15,6 +15,8 @@ type AppLayoutProps = {
   selectedObjectId?: string;
   isTreeLoading: boolean;
   treeError: string | null;
+  hasCurrentObjectSpatial?: boolean;
+  spatialObjectIds?: Set<string>;
 };
 
 export function AppLayout({
@@ -26,9 +28,21 @@ export function AppLayout({
   selectedObjectId,
   isTreeLoading,
   treeError,
+  hasCurrentObjectSpatial = false,
+  spatialObjectIds = new Set<string>(),
 }: AppLayoutProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  function handleTreeSelect(objectId: string) {
+    if (location.pathname === '/map' && spatialObjectIds.has(objectId)) {
+      navigate(`/map?objectId=${objectId}`);
+      return;
+    }
+
+    navigate(`/objects/${objectId}`);
+  }
 
   return (
     <div className="ivx-shell">
@@ -83,7 +97,7 @@ export function AppLayout({
               selectedObjectId={selectedObjectId}
               isLoading={isTreeLoading}
               error={treeError}
-              onSelect={(objectId) => navigate(`/objects/${objectId}`)}
+              onSelect={handleTreeSelect}
             />
           )}
         </aside>
@@ -97,6 +111,20 @@ export function AppLayout({
             <button className="secondary-button" type="button" onClick={() => navigate('/')}>
               <Home size={16} />
               Overview
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() =>
+                navigate(
+                  currentObject && hasCurrentObjectSpatial
+                    ? `/map?objectId=${currentObject.id}`
+                    : '/map',
+                )
+              }
+            >
+              <Map size={16} />
+              Map
             </button>
             <button
               className="secondary-button"

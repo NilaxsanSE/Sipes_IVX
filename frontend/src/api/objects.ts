@@ -1,5 +1,12 @@
 import { apiRequest } from './client';
-import type { ApiObject, HealthResponse, ObjectTreeNode, ObjectType } from '../types/objects';
+import type {
+  ApiObject,
+  HealthResponse,
+  ObjectTreeNode,
+  ObjectType,
+  SpatialFeatureCollection,
+  SpatialObject,
+} from '../types/objects';
 
 export function getHealth() {
   return apiRequest<HealthResponse>('/api/health');
@@ -31,4 +38,13 @@ export function getObjectParent(objectId: string) {
 
 export function getObjectAncestors(objectId: string) {
   return apiRequest<ApiObject[]>(`/api/objects/${objectId}/ancestors`);
+}
+
+export function getObjectSpatial(objectId: string) {
+  return apiRequest<SpatialObject>(`/api/spatial/object/${objectId}`);
+}
+
+export function getSpatialGeoJson(bbox?: string) {
+  const query = bbox ? `?bbox=${encodeURIComponent(bbox)}` : '';
+  return apiRequest<SpatialFeatureCollection>(`/api/spatial/geojson${query}`);
 }

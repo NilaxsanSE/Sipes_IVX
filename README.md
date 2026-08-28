@@ -43,6 +43,7 @@ Services:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000
 - Health endpoint: http://localhost:8000/api/health
+- Map view: http://localhost:5173/map
 - PostgreSQL/PostGIS: localhost:5432
 
 ## Verify Connectivity
@@ -51,6 +52,7 @@ Services:
 2. The page should show the SIPES IVX overview.
 3. Open http://localhost:8000/api/health and confirm the database status is `connected`.
 4. Open http://localhost:8000/api/objects/tree and confirm the demo hierarchy is returned.
+5. Open http://localhost:8000/api/spatial/geojson and confirm the spatial FeatureCollection is returned.
 
 You can also call the backend directly:
 
@@ -133,6 +135,8 @@ The demo tree is:
 ```text
 Germany -> Sachsen -> Dresden -> Site 01 -> Storage Plant -> Container 01 -> Fan 01
 ```
+
+Demo spatial points are seeded for Germany, Sachsen, Dresden and Site 01.
 
 ## API Documentation
 

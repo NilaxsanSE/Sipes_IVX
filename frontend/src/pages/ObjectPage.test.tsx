@@ -15,8 +15,10 @@ describe('ObjectDetails', () => {
         parent={sachsen}
         ancestors={[germany, sachsen]}
         children={[fan]}
+        hasSpatial
         objectTypesById={objectTypesById}
         onNavigate={onNavigate}
+        onOpenMap={onNavigate}
       />,
     );
 
@@ -24,6 +26,7 @@ describe('ObjectDetails', () => {
     expect(screen.getAllByText('WARNING')).toHaveLength(2);
     expect(screen.getAllByText('Sachsen')).toHaveLength(2);
     expect(screen.getByText('Fan 01')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'View on Map' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Fan 01' }));
 

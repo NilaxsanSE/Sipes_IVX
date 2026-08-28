@@ -1,4 +1,4 @@
-import type { ApiObject, ObjectTreeNode, ObjectType } from '../types/objects';
+import type { ApiObject, ObjectTreeNode, ObjectType, SpatialFeatureCollection } from '../types/objects';
 
 const timestamp = '2026-08-27T00:00:00.000Z';
 const tenantId = '11111111-1111-1111-1111-111111111111';
@@ -64,6 +64,38 @@ export const demoTree: ObjectTreeNode[] = [
     ],
   },
 ];
+
+export const demoGeoJson: SpatialFeatureCollection = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [13.7557, 51.0348] },
+      properties: {
+        object_id: 'object-site-01',
+        name: 'Site 01',
+        key: 'site-01',
+        status: 'NORMAL',
+        object_type: 'Site',
+        altitude: null,
+        source: 'demo-wgs84',
+      },
+    },
+    {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [13.7373, 51.0504] },
+      properties: {
+        object_id: dresden.id,
+        name: 'Dresden',
+        key: 'dresden',
+        status: 'WARNING',
+        object_type: 'Location',
+        altitude: null,
+        source: 'demo-wgs84',
+      },
+    },
+  ],
+};
 
 export function makeObject(overrides: Partial<ApiObject> & Pick<ApiObject, 'id' | 'key' | 'name'>): ApiObject {
   return {
