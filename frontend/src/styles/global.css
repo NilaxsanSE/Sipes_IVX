@@ -672,6 +672,138 @@ button:disabled {
   gap: 8px;
 }
 
+.schematic-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.schematic-panel {
+  overflow-x: auto;
+}
+
+.schematic-canvas {
+  position: relative;
+  min-width: 900px;
+  overflow: hidden;
+  border: 1px solid #d9e0e9;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.schematic-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#e6edf5 1px, transparent 1px),
+    linear-gradient(90deg, #e6edf5 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.schematic-flow-line {
+  position: absolute;
+  top: 205px;
+  left: 300px;
+  width: 340px;
+  height: 3px;
+  background: #8fa3b8;
+}
+
+.schematic-flow-line::after {
+  position: absolute;
+  top: -6px;
+  right: -2px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 12px solid #8fa3b8;
+  content: "";
+}
+
+.schematic-element {
+  position: absolute;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid #b9c6d4;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 14px;
+  color: #243242;
+  text-align: left;
+  box-shadow: 0 10px 24px rgba(16, 24, 32, 0.08);
+  touch-action: none;
+}
+
+.schematic-element:hover {
+  border-color: #17685e;
+}
+
+.schematic-element--fan {
+  border-style: dashed;
+}
+
+.schematic-element__move {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #7b8794;
+}
+
+.schematic-element strong,
+.schematic-element small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.schematic-element small {
+  margin-top: 4px;
+  color: #657385;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.schematic-save-state {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  border: 1px solid #d6dde8;
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 8px 12px;
+  color: #526174;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.drawio-frame {
+  display: grid;
+  gap: 12px;
+}
+
+.drawio-frame__header h2 {
+  margin: 0;
+  color: #182434;
+  font-size: 1.02rem;
+}
+
+.drawio-frame__iframe {
+  width: 100%;
+  min-height: 520px;
+  border: 1px solid #d9e0e9;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.drawio-frame__iframe--hidden {
+  display: none;
+}
+
 @media (max-width: 980px) {
   .app-header {
     grid-template-columns: 1fr auto;
@@ -744,5 +876,9 @@ button:disabled {
 
   .map-object-list {
     grid-template-columns: 1fr;
+  }
+
+  .schematic-canvas {
+    min-width: 720px;
   }
 }

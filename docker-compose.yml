@@ -39,12 +39,22 @@ services:
       context: ./frontend
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+        VITE_DRAWIO_URL: ${VITE_DRAWIO_URL:-http://localhost:8081}
     container_name: sipes-ivx-frontend
     restart: unless-stopped
     ports:
       - "5173:80"
     depends_on:
       - backend
+
+  drawio:
+    profiles:
+      - drawio
+    image: jgraph/drawio:31.4.1
+    container_name: sipes-ivx-drawio
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
 
 volumes:
   postgres_data:

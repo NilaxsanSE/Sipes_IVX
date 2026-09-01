@@ -52,6 +52,12 @@ class Object(Base):
         passive_deletes=True,
         uselist=False,
     )
+    views: Mapped[list["View"]] = relationship(
+        "View",
+        back_populates="object",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
     parent: Mapped[Object | None] = relationship(
         "Object",
         remote_side=[id],

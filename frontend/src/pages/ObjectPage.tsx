@@ -1,4 +1,4 @@
-import { ChevronRight, Map as MapIcon } from 'lucide-react';
+import { ChevronRight, GitBranch, Map as MapIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -20,6 +20,7 @@ type ObjectPageProps = {
   objectTypesById: Map<string, ObjectType>;
   onCurrentObjectChange: (object: ApiObject | null) => void;
   hasSpatial: boolean;
+  hasSchematic: boolean;
 };
 
 type ObjectPageState =
@@ -33,7 +34,12 @@ type ObjectPageState =
     }
   | { status: 'error'; message: string };
 
-export function ObjectPage({ objectTypesById, onCurrentObjectChange, hasSpatial }: ObjectPageProps) {
+export function ObjectPage({
+  objectTypesById,
+  onCurrentObjectChange,
+  hasSpatial,
+  hasSchematic,
+}: ObjectPageProps) {
   const { objectId } = useParams();
   const navigate = useNavigate();
   const [state, setState] = useState<ObjectPageState>({ status: 'loading' });
@@ -88,8 +94,10 @@ export function ObjectPage({ objectTypesById, onCurrentObjectChange, hasSpatial 
       children={state.children}
       objectTypesById={objectTypesById}
       hasSpatial={hasSpatial}
+      hasSchematic={hasSchematic}
       onNavigate={(targetId) => navigate(`/objects/${targetId}`)}
       onOpenMap={(targetId) => navigate(`/map?objectId=${targetId}`)}
+      onOpenSchematic={(targetId) => navigate(`/objects/${targetId}/schema`)}
     />
   );
 }
@@ -101,8 +109,10 @@ type ObjectDetailsProps = {
   children: ApiObject[];
   objectTypesById: Map<string, ObjectType>;
   hasSpatial?: boolean;
+  hasSchematic?: boolean;
   onNavigate: (objectId: string) => void;
   onOpenMap?: (objectId: string) => void;
+  onOpenSchematic?: (objectId: string) => void;
 };
 
 export function ObjectDetails({
@@ -112,8 +122,10 @@ export function ObjectDetails({
   children,
   objectTypesById,
   hasSpatial = false,
+  hasSchematic = false,
   onNavigate,
   onOpenMap,
+  onOpenSchematic,
 }: ObjectDetailsProps) {
   const breadcrumbItems = useMemo(() => [...ancestors, object], [ancestors, object]);
   const objectTypeName = getObjectTypeName(object.object_type_id, objectTypesById);
@@ -134,6 +146,12 @@ export function ObjectDetails({
             <button className="secondary-button" type="button" onClick={() => onOpenMap(object.id)}>
               <MapIcon size={16} />
               View on Map
+            </button>
+          )}
+          {hasSchematic && onOpenSchematic && (
+            <button className="secondary-button" type="button" onClick={() => onOpenSchematic(object.id)}>
+              <GitBranch size={16} />
+              Schema
             </button>
           )}
         </div>

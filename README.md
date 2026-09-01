@@ -46,6 +46,14 @@ Services:
 - Map view: http://localhost:5173/map
 - PostgreSQL/PostGIS: localhost:5432
 
+Draw.io is optional for schematic editing. Start it only when you need the Schema editor:
+
+```bash
+docker compose --profile drawio up -d drawio
+```
+
+- Draw.io editor: http://localhost:8081/?offline=1&https=0
+
 ## Verify Connectivity
 
 1. Open http://localhost:5173.
@@ -53,6 +61,7 @@ Services:
 3. Open http://localhost:8000/api/health and confirm the database status is `connected`.
 4. Open http://localhost:8000/api/objects/tree and confirm the demo hierarchy is returned.
 5. Open http://localhost:8000/api/spatial/geojson and confirm the spatial FeatureCollection is returned.
+6. Open the Storage Plant object and confirm the Schema action shows Container 01 and Fan 01.
 
 You can also call the backend directly:
 
@@ -120,7 +129,7 @@ Run migrations from the `backend/` directory after the database is available:
 alembic upgrade head
 ```
 
-The migrations enable PostGIS and create the core object hierarchy tables.
+The migrations enable PostGIS and create the core object hierarchy, spatial and schematic view tables.
 
 ## Demo Data
 
@@ -137,6 +146,8 @@ Germany -> Sachsen -> Dresden -> Site 01 -> Storage Plant -> Container 01 -> Fan
 ```
 
 Demo spatial points are seeded for Germany, Sachsen, Dresden and Site 01.
+
+Demo schematic data creates a SCHEMATIC view for Storage Plant with Container 01 and Fan 01 elements bound to their existing IVX object IDs.
 
 ## API Documentation
 

@@ -64,4 +64,31 @@ describe('AppLayout', () => {
       expect(screen.getByTestId('location')).toHaveTextContent('/objects/object-fan-01');
     });
   });
+
+  it('keeps schema open when selecting tree objects with schematic views', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={['/objects/object-germany/schema']}>
+        <AppLayout
+          currentObject={null}
+          healthStatus="connected"
+          tree={demoTree}
+          objectTypesById={objectTypesById}
+          selectedObjectId={undefined}
+          isTreeLoading={false}
+          treeError={null}
+          schematicObjectIds={new Set([dresden.id])}
+        >
+          <LocationProbe />
+        </AppLayout>
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Dresden' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location')).toHaveTextContent(`/objects/${dresden.id}/schema`);
+    });
+  });
 });

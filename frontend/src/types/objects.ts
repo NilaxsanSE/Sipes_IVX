@@ -70,3 +70,36 @@ export type SpatialObject = {
   created_at: string;
   updated_at: string;
 };
+
+export type ViewType = 'SCHEMATIC';
+
+export type ViewElement = {
+  id: string;
+  view_id: string;
+  object_id: string;
+  element_key: string;
+  layout: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    shape?: string;
+    [key: string]: unknown;
+  };
+  created_at: string;
+  updated_at: string;
+};
+
+export type ViewSummary = {
+  id: string;
+  object_id: string;
+  type: ViewType;
+  name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ObjectView = ViewSummary & {
+  configuration: Record<string, unknown>;
+  elements: ViewElement[];
+};

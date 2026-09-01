@@ -16,9 +16,11 @@ describe('ObjectDetails', () => {
         ancestors={[germany, sachsen]}
         children={[fan]}
         hasSpatial
+        hasSchematic
         objectTypesById={objectTypesById}
         onNavigate={onNavigate}
         onOpenMap={onNavigate}
+        onOpenSchematic={onNavigate}
       />,
     );
 
@@ -27,6 +29,7 @@ describe('ObjectDetails', () => {
     expect(screen.getAllByText('Sachsen')).toHaveLength(2);
     expect(screen.getByText('Fan 01')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'View on Map' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Schema' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Fan 01' }));
 

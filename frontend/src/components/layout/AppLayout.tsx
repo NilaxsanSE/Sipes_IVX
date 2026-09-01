@@ -1,4 +1,4 @@
-import { ArrowLeft, Home, Map, PanelLeftClose, PanelLeftOpen, Search, UserRound } from 'lucide-react';
+import { ArrowLeft, GitBranch, Home, Map, PanelLeftClose, PanelLeftOpen, Search, UserRound } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -16,7 +16,9 @@ type AppLayoutProps = {
   isTreeLoading: boolean;
   treeError: string | null;
   hasCurrentObjectSpatial?: boolean;
+  hasCurrentObjectSchematic?: boolean;
   spatialObjectIds?: Set<string>;
+  schematicObjectIds?: Set<string>;
 };
 
 export function AppLayout({
@@ -29,7 +31,9 @@ export function AppLayout({
   isTreeLoading,
   treeError,
   hasCurrentObjectSpatial = false,
+  hasCurrentObjectSchematic = false,
   spatialObjectIds = new Set<string>(),
+  schematicObjectIds = new Set<string>(),
 }: AppLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,6 +42,11 @@ export function AppLayout({
   function handleTreeSelect(objectId: string) {
     if (location.pathname === '/map' && spatialObjectIds.has(objectId)) {
       navigate(`/map?objectId=${objectId}`);
+      return;
+    }
+
+    if (location.pathname.endsWith('/schema') && schematicObjectIds.has(objectId)) {
+      navigate(`/objects/${objectId}/schema`);
       return;
     }
 
@@ -112,20 +121,26 @@ export function AppLayout({
               <Home size={16} />
               Overview
             </button>
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() =>
-                navigate(
-                  currentObject && hasCurrentObjectSpatial
-                    ? `/map?objectId=${currentObject.id}`
-                    : '/map',
-                )
-              }
-            >
-              <Map size={16} />
-              Map
-            </button>
+            {currentObject && hasCurrentObjectSpatial && (
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => navigate(`/map?objectId=${currentObject.id}`)}
+              >
+                <Map size={16} />
+                Map
+              </button>
+            )}
+            {currentObject && hasCurrentObjectSchematic && (
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => navigate(`/objects/${currentObject.id}/schema`)}
+              >
+                <GitBranch size={16} />
+                Schema
+              </button>
+            )}
             <button
               className="secondary-button"
               disabled={!currentObject?.parent_id}

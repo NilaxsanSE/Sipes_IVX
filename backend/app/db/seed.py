@@ -6,6 +6,7 @@ from sqlalchemy import select, text
 from app.db.session import AsyncSessionLocal
 from app.models.object import Object
 from app.models.object_type import ObjectType, ObjectTypeVersion
+from app.models.view import View, ViewElement
 
 DEMO_TENANT_ID = UUID("11111111-1111-1111-1111-111111111111")
 
@@ -24,6 +25,34 @@ DEMO_SPATIAL_POINTS = {
     "sachsen": {"longitude": 13.4589, "latitude": 51.1045, "source": "demo-wgs84"},
     "dresden": {"longitude": 13.7373, "latitude": 51.0504, "source": "demo-wgs84"},
     "site-01": {"longitude": 13.7557, "latitude": 51.0348, "source": "demo-wgs84"},
+}
+
+DEMO_STORAGE_PLANT_SCHEMATIC = {
+    "name": "Storage Plant Schematic",
+    "configuration": {
+        "drawio": {
+            "enabled": True,
+            "mode": "self-hosted",
+            "editor_url": "http://localhost:8081",
+        },
+        "canvas": {"width": 900, "height": 420},
+    },
+    "elements": {
+        "container-01": {
+            "x": 160,
+            "y": 130,
+            "width": 250,
+            "height": 140,
+            "shape": "container",
+        },
+        "fan-01": {
+            "x": 545,
+            "y": 150,
+            "width": 150,
+            "height": 110,
+            "shape": "fan",
+        },
+    },
 }
 
 
@@ -116,6 +145,42 @@ async def seed_demo_data() -> None:
                     "source": point["source"],
                 },
             )
+
+        storage_plant = seeded_objects["storage-plant"]
+        schematic_view = await session.scalar(
+            select(View).where(View.object_id == storage_plant.id, View.type == "SCHEMATIC")
+        )
+        if schematic_view is None:
+            schematic_view = View(
+                object_id=storage_plant.id,
+                type="SCHEMATIC",
+                name=DEMO_STORAGE_PLANT_SCHEMATIC["name"],
+                configuration=DEMO_STORAGE_PLANT_SCHEMATIC["configuration"],
+            )
+            session.add(schematic_view)
+            await session.flush()
+        else:
+            schematic_view.name = DEMO_STORAGE_PLANT_SCHEMATIC["name"]
+            schematic_view.configuration = DEMO_STORAGE_PLANT_SCHEMATIC["configuration"]
+
+        for object_key, layout in DEMO_STORAGE_PLANT_SCHEMATIC["elements"].items():
+            element = await session.scalar(
+                select(ViewElement).where(
+                    ViewElement.view_id == schematic_view.id,
+                    ViewElement.element_key == object_key,
+                )
+            )
+            if element is None:
+                element = ViewElement(
+                    view_id=schematic_view.id,
+                    object_id=seeded_objects[object_key].id,
+                    element_key=object_key,
+                    layout=layout,
+                )
+                session.add(element)
+            else:
+                element.object_id = seeded_objects[object_key].id
+                element.layout = layout
 
         await session.commit()
 

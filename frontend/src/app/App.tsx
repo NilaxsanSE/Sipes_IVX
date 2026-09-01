@@ -1,12 +1,26 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { getHealth, getObjectTree, getSpatialGeoJson, listObjects, listObjectTypes } from '../api/objects';
+import {
+  getHealth,
+  getObjectTree,
+  getSpatialGeoJson,
+  listObjects,
+  listObjectTypes,
+  listViews,
+} from '../api/objects';
 import { ErrorState } from '../components/common/ErrorState';
 import { LoadingState } from '../components/common/LoadingState';
 import { AppLayout } from '../components/layout/AppLayout';
 import { ObjectPage } from '../pages/ObjectPage';
 import { OverviewPage } from '../pages/OverviewPage';
-import type { ApiObject, ObjectTreeNode, ObjectType, SpatialFeatureCollection } from '../types/objects';
+import { SchematicPage } from '../pages/SchematicPage';
+import type {
+  ApiObject,
+  ObjectTreeNode,
+  ObjectType,
+  SpatialFeatureCollection,
+  ViewSummary,
+} from '../types/objects';
 import { createObjectTypeMap } from '../utils/objectTypes';
 
 const MapPage = lazy(() => import('../pages/MapPage').then((module) => ({ default: module.MapPage })));
@@ -20,6 +34,7 @@ type AppDataState =
       objects: ApiObject[];
       tree: ObjectTreeNode[];
       spatialGeoJson: SpatialFeatureCollection;
+      views: ViewSummary[];
     }
   | { status: 'error'; message: string };
 
@@ -37,7 +52,7 @@ function SipesApp() {
   const [currentObject, setCurrentObject] = useState<ApiObject | null>(null);
 
   const selectedObjectId = useMemo(() => {
-    const match = location.pathname.match(/^\/objects\/([^/]+)$/);
+    const match = location.pathname.match(/^\/objects\/([^/]+)(?:\/schema)?$/);
     if (match?.[1]) {
       return match[1];
     }
@@ -53,12 +68,13 @@ function SipesApp() {
     setState({ status: 'loading' });
 
     try {
-      const [health, objectTypes, objects, tree, spatialGeoJson] = await Promise.all([
+      const [health, objectTypes, objects, tree, spatialGeoJson, views] = await Promise.all([
         getHealth(),
         listObjectTypes(),
         listObjects(),
         getObjectTree(),
         getSpatialGeoJson(),
+        listViews(),
       ]);
 
       setState({
@@ -68,6 +84,7 @@ function SipesApp() {
         objects,
         tree,
         spatialGeoJson,
+        views,
       });
     } catch (error) {
       setState({
@@ -101,6 +118,9 @@ function SipesApp() {
   const spatialObjectIds = new Set(
     state.spatialGeoJson.features.map((feature) => feature.properties.object_id),
   );
+  const schematicObjectIds = new Set(
+    state.views.filter((view) => view.type === 'SCHEMATIC').map((view) => view.object_id),
+  );
   const selectedObject = selectedObjectId
     ? state.objects.find((object) => object.id === selectedObjectId) ?? null
     : null;
@@ -115,7 +135,9 @@ function SipesApp() {
       isTreeLoading={false}
       treeError={null}
       hasCurrentObjectSpatial={selectedObject ? spatialObjectIds.has(selectedObject.id) : false}
+      hasCurrentObjectSchematic={selectedObject ? schematicObjectIds.has(selectedObject.id) : false}
       spatialObjectIds={spatialObjectIds}
+      schematicObjectIds={schematicObjectIds}
     >
       <Routes>
         <Route
@@ -143,6 +165,16 @@ function SipesApp() {
               objectTypesById={objectTypesById}
               onCurrentObjectChange={setCurrentObject}
               hasSpatial={selectedObjectId ? spatialObjectIds.has(selectedObjectId) : false}
+              hasSchematic={selectedObjectId ? schematicObjectIds.has(selectedObjectId) : false}
+            />
+          }
+        />
+        <Route
+          path="/objects/:objectId/schema"
+          element={
+            <SchematicPage
+              objectTypesById={objectTypesById}
+              onCurrentObjectChange={setCurrentObject}
             />
           }
         />

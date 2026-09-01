@@ -2,10 +2,13 @@ import { apiRequest } from './client';
 import type {
   ApiObject,
   HealthResponse,
+  ObjectView,
   ObjectTreeNode,
   ObjectType,
   SpatialFeatureCollection,
   SpatialObject,
+  ViewElement,
+  ViewSummary,
 } from '../types/objects';
 
 export function getHealth() {
@@ -47,4 +50,23 @@ export function getObjectSpatial(objectId: string) {
 export function getSpatialGeoJson(bbox?: string) {
   const query = bbox ? `?bbox=${encodeURIComponent(bbox)}` : '';
   return apiRequest<SpatialFeatureCollection>(`/api/spatial/geojson${query}`);
+}
+
+export function listViews() {
+  return apiRequest<ViewSummary[]>('/api/views');
+}
+
+export function listObjectViews(objectId: string) {
+  return apiRequest<ViewSummary[]>(`/api/views/object/${objectId}`);
+}
+
+export function getObjectSchematicView(objectId: string) {
+  return apiRequest<ObjectView>(`/api/views/object/${objectId}/schematic`);
+}
+
+export function updateViewElementLayout(elementId: string, layout: ViewElement['layout']) {
+  return apiRequest<ViewElement>(`/api/views/elements/${elementId}/layout`, {
+    method: 'PATCH',
+    body: JSON.stringify({ layout }),
+  });
 }
