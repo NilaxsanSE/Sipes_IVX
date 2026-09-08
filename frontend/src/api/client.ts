@@ -18,6 +18,8 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
       const body = (await response.json()) as { detail?: unknown };
       if (typeof body.detail === 'string') {
         message = body.detail;
+      } else if (Array.isArray(body.detail)) {
+        message = formatValidationErrors(body.detail);
       }
     } catch {
       // Keep the status-based fallback message.
@@ -27,4 +29,27 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
   }
 
   return response.json() as Promise<T>;
+}
+
+function formatValidationErrors(detail: unknown[]) {
+  const messages = detail
+    .map((item) => {
+      if (!item || typeof item !== 'object') {
+        return null;
+      }
+
+      const error = item as { loc?: unknown; msg?: unknown };
+      if (typeof error.msg !== 'string') {
+        return null;
+      }
+
+      const location = Array.isArray(error.loc)
+        ? error.loc.filter((part) => part !== 'path' && part !== 'body').join('.')
+        : '';
+
+      return location ? `${location}: ${error.msg}` : error.msg;
+    })
+    .filter((message): message is string => Boolean(message));
+
+  return messages.length > 0 ? messages.join('; ') : 'The request was invalid.';
 }

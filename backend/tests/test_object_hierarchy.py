@@ -113,6 +113,19 @@ async def test_moving_objects(session: AsyncSession, object_type: ObjectType):
     assert {node.key for node in tree} == {"root", "child"}
 
 
+async def test_inserting_object_between_parent_and_child(session: AsyncSession, object_type: ObjectType):
+    tenant_id = uuid4()
+    root = await _create_object(session, object_type, tenant_id, "root", "Root")
+    child = await _create_object(session, object_type, tenant_id, "child", "Child", root.id)
+    inserted = await _create_object(session, object_type, tenant_id, "inserted", "Inserted", root.id)
+
+    moved = await move_object(session, child.id, inserted.id)
+    ancestors = await get_ancestors(session, child.id)
+
+    assert moved.parent_id == inserted.id
+    assert [item.id for item in ancestors] == [root.id, inserted.id]
+
+
 async def test_cycle_prevention(session: AsyncSession, object_type: ObjectType):
     tenant_id = uuid4()
     root = await _create_object(session, object_type, tenant_id, "root", "Root")

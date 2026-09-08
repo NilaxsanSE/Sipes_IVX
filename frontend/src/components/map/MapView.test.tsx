@@ -95,6 +95,33 @@ describe('MapView', () => {
     expect(onOpenObject).toHaveBeenCalledWith('object-site-01');
   });
 
+  it('updates marker selection without recreating markers', async () => {
+    markerElements.length = 0;
+
+    const { rerender } = render(
+      <MapView
+        features={demoGeoJson.features}
+        selectedObjectId="object-site-01"
+        onOpenObject={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(markerElements).toHaveLength(2));
+    expect(markerElements[0]).toHaveClass('map-marker--selected');
+
+    rerender(
+      <MapView
+        features={demoGeoJson.features}
+        selectedObjectId="object-dresden"
+        onOpenObject={vi.fn()}
+      />,
+    );
+
+    expect(markerElements).toHaveLength(2);
+    expect(markerElements[0]).not.toHaveClass('map-marker--selected');
+    expect(markerElements[1]).toHaveClass('map-marker--selected');
+  });
+
   it('handles objects without spatial data by showing an empty map state', () => {
     render(<MapView features={[]} onOpenObject={vi.fn()} />);
 

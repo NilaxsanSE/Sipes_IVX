@@ -39,7 +39,10 @@ export function MapView({
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
-  const markersRef = useRef<maplibregl.Marker[]>([]);
+  const markersRef = useRef<
+    Array<{ objectId: string; marker: maplibregl.Marker; element: HTMLButtonElement }>
+  >([]);
+  const onOpenObjectRef = useRef(onOpenObject);
   const hasFitInitialFeaturesRef = useRef(false);
   const focusedObjectIdRef = useRef<string | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -48,6 +51,10 @@ export function MapView({
     () => features.find((feature) => feature.properties.object_id === selectedObjectId),
     [features, selectedObjectId],
   );
+
+  useEffect(() => {
+    onOpenObjectRef.current = onOpenObject;
+  }, [onOpenObject]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) {
@@ -73,7 +80,7 @@ export function MapView({
     }
 
     return () => {
-      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current.forEach(({ marker }) => marker.remove());
       markersRef.current = [];
       mapRef.current?.remove();
       mapRef.current = null;
@@ -86,27 +93,32 @@ export function MapView({
       return;
     }
 
-    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current.forEach(({ marker }) => marker.remove());
     markersRef.current = features.map((feature) => {
       const markerElement = document.createElement('button');
-      markerElement.className = `map-marker ${
-        feature.properties.object_id === selectedObjectId ? 'map-marker--selected' : ''
-      }`;
+      markerElement.className = 'map-marker';
       markerElement.type = 'button';
       markerElement.style.background = getStatusColor(feature.properties.status);
       markerElement.setAttribute('aria-label', `Open ${feature.properties.name}`);
       markerElement.title = `${feature.properties.name} · ${feature.properties.object_type} · ${feature.properties.status}`;
-      markerElement.addEventListener('click', () => onOpenObject(feature.properties.object_id));
+      markerElement.addEventListener('click', () => onOpenObjectRef.current(feature.properties.object_id));
 
-      return new maplibregl.Marker({ element: markerElement })
+      const marker = new maplibregl.Marker({ element: markerElement })
         .setLngLat(feature.geometry.coordinates)
         .addTo(map);
+      return { objectId: feature.properties.object_id, marker, element: markerElement };
     });
-    if (!hasFitInitialFeaturesRef.current && features.length > 0 && !selectedFeature) {
-      fitFeatures(map, features, selectedFeature);
+    if (!hasFitInitialFeaturesRef.current && features.length > 0) {
+      fitFeatures(map, features);
       hasFitInitialFeaturesRef.current = true;
     }
-  }, [features, onOpenObject, selectedFeature, selectedObjectId]);
+  }, [features]);
+
+  useEffect(() => {
+    markersRef.current.forEach(({ objectId, element }) => {
+      element.classList.toggle('map-marker--selected', objectId === selectedObjectId);
+    });
+  }, [selectedObjectId]);
 
   useEffect(() => {
     const map = mapRef.current;
