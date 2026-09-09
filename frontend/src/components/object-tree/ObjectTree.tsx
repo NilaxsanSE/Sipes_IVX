@@ -117,11 +117,13 @@ function ObjectTreeItem({
           onClick={() => onSelect(node.id)}
         >
           <Factory size={15} aria-hidden="true" />
-          <span className="object-tree__name" title={node.name}>
-            {node.name}
-          </span>
-          <span className="object-tree__type" title={typeName}>
-            {typeName}
+          <span className="object-tree__copy">
+            <span className="object-tree__name" title={node.name}>
+              {node.name}
+            </span>
+            <span className="object-tree__type" title={typeName}>
+              {typeName}
+            </span>
           </span>
           <StatusBadge status={node.status} size="sm" />
         </button>

@@ -99,7 +99,6 @@ export function AppLayout({
           >
             <Sun className="theme-toggle__icon theme-toggle__icon--sun" size={16} aria-hidden="true" />
             <Moon className="theme-toggle__icon theme-toggle__icon--moon" size={16} aria-hidden="true" />
-            <span>{theme === 'light' ? 'Light' : 'Dark'}</span>
           </button>
           <button className="profile-placeholder" type="button" aria-label="Profile placeholder">
             <UserRound size={18} />
