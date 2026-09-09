@@ -61,7 +61,7 @@ export function OverviewPage({ objects, roots, objectTypesById }: OverviewPagePr
                     {getObjectTypeName(root.object_type_id, objectTypesById)} · {root.key}
                   </span>
                 </div>
-                <StatusBadge status={root.status} size="sm" />
+                <StatusBadge status={root.status} size="sm" variant="compact" />
                 <ChevronRight size={18} aria-hidden="true" />
               </button>
             ))}

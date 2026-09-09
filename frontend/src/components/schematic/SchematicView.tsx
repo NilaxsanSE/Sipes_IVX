@@ -148,7 +148,11 @@ export function SchematicView({
             <strong>{object?.name ?? 'Missing object'}</strong>
             <small>{object ? getObjectTypeName(object.object_type_id, objectTypesById) : element.object_id}</small>
           </span>
-          {object ? <StatusBadge status={object.status} size="sm" /> : <StatusBadge status="UNKNOWN" size="sm" />}
+          {object ? (
+            <StatusBadge status={object.status} size="sm" variant="compact" />
+          ) : (
+            <StatusBadge status="UNKNOWN" size="sm" variant="compact" />
+          )}
         </button>
       ))}
       {saveState && <span className="schematic-save-state">{saveState}</span>}

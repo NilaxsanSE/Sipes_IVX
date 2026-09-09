@@ -99,7 +99,7 @@ export function MapPage() {
                   {feature.properties.object_type} · {feature.properties.key}
                 </span>
               </div>
-              <StatusBadge status={feature.properties.status} size="sm" />
+              <StatusBadge status={feature.properties.status} size="sm" variant="compact" />
             </button>
           ))}
         </div>

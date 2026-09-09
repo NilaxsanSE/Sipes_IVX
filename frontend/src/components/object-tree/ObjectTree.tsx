@@ -98,7 +98,7 @@ function ObjectTreeItem({
     <div className="object-tree__branch">
       <div
         className={`object-tree__row ${selectedObjectId === node.id ? 'object-tree__row--selected' : ''}`}
-        style={{ paddingLeft: `${depth * 18 + 8}px` }}
+        style={{ paddingLeft: `${depth * 15 + 8}px` }}
       >
         <button
           aria-label={hasChildren ? `${isExpanded ? 'Collapse' : 'Expand'} ${node.name}` : `${node.name} has no children`}
@@ -125,7 +125,7 @@ function ObjectTreeItem({
               {typeName}
             </span>
           </span>
-          <StatusBadge status={node.status} size="sm" />
+          <StatusBadge status={node.status} size="sm" variant="compact" />
         </button>
       </div>
 

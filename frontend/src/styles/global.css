@@ -457,7 +457,7 @@ iframe:focus-visible {
 .object-tree {
   height: calc(100vh - 129px);
   overflow: auto;
-  padding: 12px 10px 18px;
+  padding: 10px 10px 18px;
 }
 
 .object-tree__branch {
@@ -465,14 +465,12 @@ iframe:focus-visible {
 }
 
 .object-tree__children {
-  border-left: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  margin-left: 18px;
-  padding-left: 5px;
+  margin-left: 0;
 }
 
 .object-tree__row {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-columns: 24px minmax(0, 1fr);
   align-items: center;
   min-width: 0;
   border-left: 3px solid transparent;
@@ -499,17 +497,30 @@ iframe:focus-visible {
   color: var(--text-muted);
 }
 
+.object-tree__toggle:hover {
+  background: transparent;
+  color: var(--accent-strong);
+}
+
 .object-tree__select {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr) auto;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   min-width: 0;
   border: 0;
   background: transparent;
-  padding: 8px 8px 8px 0;
+  padding: 7px 7px 7px 0;
   color: var(--text-secondary);
   text-align: left;
+}
+
+.object-tree__select > svg {
+  color: var(--text-muted);
+}
+
+.object-tree__row--selected .object-tree__select > svg {
+  color: var(--accent-strong);
 }
 
 .object-tree__copy {
@@ -527,15 +538,15 @@ iframe:focus-visible {
 
 .object-tree__name {
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-weight: 750;
+  font-size: 0.88rem;
+  font-weight: 700;
   line-height: 1.15;
 }
 
 .object-tree__type {
   color: var(--text-muted);
   font-size: 0.72rem;
-  font-weight: 650;
+  font-weight: 500;
   line-height: 1.15;
 }
 
@@ -621,8 +632,7 @@ iframe:focus-visible {
 }
 
 .object-list__item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 24px;
+  display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
@@ -637,7 +647,17 @@ iframe:focus-visible {
 }
 
 .map-object-list .object-list__item {
-  grid-template-columns: minmax(0, 1fr) auto;
+  justify-content: space-between;
+}
+
+.object-list__item > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.object-list__item > svg {
+  flex: 0 0 auto;
+  color: var(--text-muted);
 }
 
 .object-list__item:hover,
@@ -676,15 +696,23 @@ iframe:focus-visible {
 
 .status-badge {
   display: inline-flex;
+  flex: 0 0 auto;
+  flex-shrink: 0;
   align-items: center;
   gap: 6px;
   width: fit-content;
+  max-width: max-content;
   border: 1px solid transparent;
   border-radius: 6px;
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
   letter-spacing: 0.01em;
+}
+
+.status-badge__label {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .status-badge--md {
@@ -706,6 +734,28 @@ iframe:focus-visible {
   border-radius: 999px;
   background: currentColor;
   box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.status-badge--compact.status-badge--normal {
+  min-width: 18px;
+  border-color: transparent;
+  background: transparent;
+  padding: 0 6px;
+}
+
+.status-badge--compact.status-badge--normal .status-badge__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.status-badge--compact.status-badge--warning,
+.status-badge--compact.status-badge--error,
+.status-badge--compact.status-badge--unknown {
+  min-width: max-content;
 }
 
 .status-badge--normal {

@@ -9,7 +9,13 @@ describe('StatusBadge', () => {
     (status) => {
       render(<StatusBadge status={status} />);
 
-      expect(screen.getByText(status)).toHaveClass(`status-badge--${status.toLowerCase()}`);
+      expect(screen.getByLabelText(`Status ${status}`)).toHaveClass(`status-badge--${status.toLowerCase()}`);
     },
   );
+
+  it('keeps normal status quiet in compact mode', () => {
+    render(<StatusBadge status="NORMAL" size="sm" variant="compact" />);
+
+    expect(screen.getByLabelText('Status NORMAL')).toHaveClass('status-badge--compact');
+  });
 });

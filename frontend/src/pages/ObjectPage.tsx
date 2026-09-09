@@ -162,7 +162,7 @@ export function ObjectDetails({
           <Definition label="Object ID" value={object.id} />
           <Definition label="Object type" value={objectTypeName} />
           <Definition label="Key" value={object.key} />
-          <Definition label="Status" value={object.status} display={<StatusBadge status={object.status} size="sm" />} />
+          <Definition label="Status" value={object.status} display={<StatusBadge status={object.status} size="md" />} />
           <Definition label="Direct children" value={String(children.length)} />
         </InfoPanel>
 
@@ -220,7 +220,7 @@ export function ObjectDetails({
                     {getObjectTypeName(child.object_type_id, objectTypesById)} · {child.key}
                   </span>
                 </div>
-                <StatusBadge status={child.status} size="sm" />
+                <StatusBadge status={child.status} size="sm" variant="compact" />
                 <ChevronRight size={18} aria-hidden="true" />
               </button>
             ))}
