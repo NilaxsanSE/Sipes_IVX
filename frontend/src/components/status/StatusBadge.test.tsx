@@ -18,4 +18,11 @@ describe('StatusBadge', () => {
 
     expect(screen.getByLabelText('Status NORMAL')).toHaveClass('status-badge--compact');
   });
+
+  it('keeps warning text visible in compact mode', () => {
+    render(<StatusBadge status="WARNING" size="sm" variant="compact" />);
+
+    expect(screen.getByText('WARNING')).toBeVisible();
+    expect(screen.getByLabelText('Status WARNING')).toHaveClass('status-badge--compact');
+  });
 });

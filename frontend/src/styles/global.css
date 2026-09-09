@@ -634,7 +634,7 @@ iframe:focus-visible {
 .object-list__item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   min-height: 58px;
   border: 1px solid var(--border);
@@ -657,6 +657,7 @@ iframe:focus-visible {
 
 .object-list__item > svg {
   flex: 0 0 auto;
+  margin-left: 2px;
   color: var(--text-muted);
 }
 
@@ -697,34 +698,34 @@ iframe:focus-visible {
 .status-badge {
   display: inline-flex;
   flex: 0 0 auto;
-  flex-shrink: 0;
   align-items: center;
   gap: 6px;
-  width: fit-content;
-  max-width: max-content;
   border: 1px solid transparent;
   border-radius: 6px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
+  vertical-align: middle;
   white-space: nowrap;
   letter-spacing: 0.01em;
 }
 
 .status-badge__label {
   display: inline-block;
+  flex: 0 0 auto;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .status-badge--md {
-  min-height: 32px;
+  height: 32px;
   padding: 0 10px;
   font-size: 0.78rem;
 }
 
 .status-badge--sm {
-  min-height: 22px;
-  padding: 0 7px;
-  font-size: 0.65rem;
+  height: 24px;
+  padding: 0 9px;
+  font-size: 0.72rem;
 }
 
 .status-badge__dot {
@@ -733,29 +734,28 @@ iframe:focus-visible {
   flex: 0 0 auto;
   border-radius: 999px;
   background: currentColor;
-  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent);
 }
 
 .status-badge--compact.status-badge--normal {
-  min-width: 18px;
+  width: 24px;
+  height: 24px;
+  justify-content: center;
   border-color: transparent;
   background: transparent;
-  padding: 0 6px;
+  padding: 0;
 }
 
 .status-badge--compact.status-badge--normal .status-badge__label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
+  display: none;
 }
 
 .status-badge--compact.status-badge--warning,
 .status-badge--compact.status-badge--error,
 .status-badge--compact.status-badge--unknown {
+  width: max-content;
   min-width: max-content;
+  height: 24px;
+  padding: 0 9px;
 }
 
 .status-badge--normal {
