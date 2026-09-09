@@ -677,22 +677,26 @@ iframe:focus-visible {
   transform: translateY(-1px);
 }
 
-.object-list__item strong,
-.object-list__item span {
+.object-list__item > div > strong,
+.object-list__item > div > span {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.object-list__item strong {
+.object-list__item > div > strong {
   color: var(--text);
 }
 
-.object-list__item span {
+.object-list__item > div > span {
   margin-top: 3px;
   color: var(--text-muted);
   font-size: 0.84rem;
+}
+
+.object-list__item > .status-badge {
+  margin-left: auto;
 }
 
 .status-badge {
@@ -704,15 +708,19 @@ iframe:focus-visible {
   border-radius: 6px;
   font-weight: 700;
   line-height: 1;
+  text-decoration: none;
   vertical-align: middle;
   white-space: nowrap;
   letter-spacing: 0.01em;
 }
 
 .status-badge__label {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   flex: 0 0 auto;
+  height: 100%;
   line-height: 1;
+  text-decoration: none;
   white-space: nowrap;
 }
 
