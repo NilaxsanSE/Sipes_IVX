@@ -977,7 +977,7 @@ iframe:focus-visible {
 
 .schematic-canvas {
   position: relative;
-  min-width: 900px;
+  min-width: 860px;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -995,9 +995,7 @@ iframe:focus-visible {
 
 .schematic-flow-line {
   position: absolute;
-  top: 205px;
-  left: 300px;
-  width: 340px;
+  transform: translateY(-50%);
   height: 3px;
   background: var(--text-muted);
 }
@@ -1017,7 +1015,7 @@ iframe:focus-visible {
 .schematic-element {
   position: absolute;
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) auto;
+  grid-template-columns: 30px minmax(0, 1fr) max-content;
   align-items: center;
   gap: 10px;
   border: 2px solid var(--border-strong);
@@ -1038,7 +1036,10 @@ iframe:focus-visible {
 }
 
 .schematic-element--fan {
-  border-style: dashed;
+  border-style: solid;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-raised) 76%, transparent), var(--surface)),
+    var(--surface);
 }
 
 .schematic-element__move {

@@ -46,6 +46,32 @@ export function SchematicView({
     [draftLayouts, objectsById, view.elements],
   );
 
+  const flowLine = useMemo(() => {
+    if (elements.length < 2) {
+      return null;
+    }
+
+    const [source, target] = [...elements].sort(
+      (left, right) => Number(left.layout.x ?? 0) - Number(right.layout.x ?? 0),
+    );
+    const sourceX = Number(source.layout.x ?? 0);
+    const sourceY = Number(source.layout.y ?? 0);
+    const sourceWidth = Number(source.layout.width ?? 180);
+    const sourceHeight = Number(source.layout.height ?? 96);
+    const targetX = Number(target.layout.x ?? 0);
+    const targetY = Number(target.layout.y ?? 0);
+    const targetHeight = Number(target.layout.height ?? 96);
+    const left = sourceX + sourceWidth;
+    const top = (sourceY + sourceHeight / 2 + targetY + targetHeight / 2) / 2;
+    const width = targetX - left;
+
+    if (width <= 0) {
+      return null;
+    }
+
+    return { left, top, width };
+  }, [elements]);
+
   if (view.elements.length === 0) {
     return <EmptyState message="This schematic has no elements yet." />;
   }
@@ -119,12 +145,22 @@ export function SchematicView({
     <div
       className="schematic-canvas"
       ref={canvasRef}
-      style={{ minHeight: `${canvas.height}px` }}
+      style={{ minHeight: `${canvas.height}px`, minWidth: `${canvas.width}px` }}
       role="group"
       aria-label={view.name}
     >
       <div className="schematic-grid" aria-hidden="true" />
-      <div className="schematic-flow-line" aria-hidden="true" />
+      {flowLine && (
+        <div
+          className="schematic-flow-line"
+          aria-hidden="true"
+          style={{
+            left: `${flowLine.left}px`,
+            top: `${flowLine.top}px`,
+            width: `${flowLine.width}px`,
+          }}
+        />
+      )}
       {elements.map(({ element, object, layout }) => (
         <button
           className={`schematic-element schematic-element--${String(layout.shape ?? 'node')}`}
