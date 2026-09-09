@@ -450,6 +450,7 @@ iframe:focus-visible {
   display: flex;
   flex: 0 0 auto;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
   gap: 10px;
 }
@@ -711,6 +712,7 @@ iframe:focus-visible {
   text-decoration: none;
   vertical-align: middle;
   white-space: nowrap;
+  min-width: max-content;
   letter-spacing: 0.01em;
 }
 
@@ -725,8 +727,8 @@ iframe:focus-visible {
 }
 
 .status-badge--md {
-  height: 32px;
-  padding: 0 10px;
+  height: 36px;
+  padding: 0 12px;
   font-size: 0.78rem;
 }
 
@@ -742,6 +744,15 @@ iframe:focus-visible {
   flex: 0 0 auto;
   border-radius: 999px;
   background: currentColor;
+}
+
+.status-badge--full .status-badge__dot {
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.status-badge--md .status-badge__dot {
+  width: 7px;
+  height: 7px;
 }
 
 .status-badge--compact.status-badge--normal {
