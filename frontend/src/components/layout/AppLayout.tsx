@@ -1,6 +1,17 @@
-import { ArrowLeft, GitBranch, Home, Map, PanelLeftClose, PanelLeftOpen, Search, UserRound } from 'lucide-react';
+import {
+  ArrowLeft,
+  GitBranch,
+  Home,
+  Map,
+  Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Search,
+  Sun,
+  UserRound,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { ApiObject, ObjectTreeNode, ObjectType } from '../../types/objects';
 import { ObjectTree } from '../object-tree/ObjectTree';
@@ -38,6 +49,12 @@ export function AppLayout({
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => getInitialTheme());
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem('sipes-ivx-theme', theme);
+  }, [theme]);
 
   function handleTreeSelect(objectId: string) {
     if (location.pathname === '/map' && spatialObjectIds.has(objectId)) {
@@ -73,6 +90,17 @@ export function AppLayout({
 
         <div className="header-actions">
           <StatusBadge status={healthStatus === 'connected' ? 'NORMAL' : 'UNKNOWN'} size="sm" />
+          <button
+            className="theme-toggle"
+            type="button"
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+            aria-pressed={theme === 'dark'}
+            onClick={() => setTheme((current) => (current === 'light' ? 'dark' : 'light'))}
+          >
+            <Sun className="theme-toggle__icon theme-toggle__icon--sun" size={16} aria-hidden="true" />
+            <Moon className="theme-toggle__icon theme-toggle__icon--moon" size={16} aria-hidden="true" />
+            <span>{theme === 'light' ? 'Light' : 'Dark'}</span>
+          </button>
           <button className="profile-placeholder" type="button" aria-label="Profile placeholder">
             <UserRound size={18} />
             <span>Operator</span>
@@ -123,7 +151,7 @@ export function AppLayout({
             </button>
             {currentObject && hasCurrentObjectSpatial && (
               <button
-                className="secondary-button"
+                className={`secondary-button ${location.pathname === '/map' ? 'secondary-button--active' : ''}`}
                 type="button"
                 onClick={() => navigate(`/map?objectId=${currentObject.id}`)}
               >
@@ -133,7 +161,7 @@ export function AppLayout({
             )}
             {currentObject && hasCurrentObjectSchematic && (
               <button
-                className="secondary-button"
+                className={`secondary-button ${location.pathname.endsWith('/schema') ? 'secondary-button--active' : ''}`}
                 type="button"
                 onClick={() => navigate(`/objects/${currentObject.id}/schema`)}
               >
@@ -155,4 +183,17 @@ export function AppLayout({
       </div>
     </div>
   );
+}
+
+function getInitialTheme(): 'light' | 'dark' {
+  if (typeof window === 'undefined') {
+    return 'light';
+  }
+
+  const storedTheme = window.localStorage.getItem('sipes-ivx-theme');
+  if (storedTheme === 'light' || storedTheme === 'dark') {
+    return storedTheme;
+  }
+
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }

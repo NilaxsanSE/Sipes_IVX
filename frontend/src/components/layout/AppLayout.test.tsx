@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { demoTree, dresden, objectTypesById } from '../../test/fixtures';
 import { AppLayout } from './AppLayout';
 
@@ -11,6 +11,11 @@ function LocationProbe() {
 }
 
 describe('AppLayout', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.removeAttribute('data-theme');
+  });
+
   it('keeps map open and selects spatial tree objects while on the map route', async () => {
     const user = userEvent.setup();
 
@@ -89,6 +94,33 @@ describe('AppLayout', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('location')).toHaveTextContent(`/objects/${dresden.id}/schema`);
+    });
+  });
+
+  it('persists the selected theme', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <AppLayout
+          currentObject={null}
+          healthStatus="connected"
+          tree={demoTree}
+          objectTypesById={objectTypesById}
+          selectedObjectId={undefined}
+          isTreeLoading={false}
+          treeError={null}
+        >
+          <LocationProbe />
+        </AppLayout>
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Switch to dark theme' }));
+
+    await waitFor(() => {
+      expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+      expect(window.localStorage.getItem('sipes-ivx-theme')).toBe('dark');
     });
   });
 });

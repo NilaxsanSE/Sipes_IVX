@@ -162,7 +162,7 @@ export function ObjectDetails({
           <Definition label="Object ID" value={object.id} />
           <Definition label="Object type" value={objectTypeName} />
           <Definition label="Key" value={object.key} />
-          <Definition label="Status" value={object.status} />
+          <Definition label="Status" value={object.status} display={<StatusBadge status={object.status} size="sm" />} />
           <Definition label="Direct children" value={String(children.length)} />
         </InfoPanel>
 
@@ -250,14 +250,15 @@ function InfoPanel({ title, children }: InfoPanelProps) {
 type DefinitionProps = {
   label: string;
   value: string;
+  display?: ReactNode;
   action?: ReactNode;
 };
 
-function Definition({ label, value, action }: DefinitionProps) {
+function Definition({ label, value, display, action }: DefinitionProps) {
   return (
     <div className="definition-list__row">
       <dt>{label}</dt>
-      <dd title={value}>{value}</dd>
+      <dd title={value}>{display ?? value}</dd>
       {action}
     </div>
   );
