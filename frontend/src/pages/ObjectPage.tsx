@@ -1,4 +1,4 @@
-import { ChevronRight, GitBranch, Map as MapIcon } from 'lucide-react';
+import { Building2, ChevronRight, GitBranch, Map as MapIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -14,13 +14,14 @@ import { ErrorState } from '../components/common/ErrorState';
 import { LoadingState } from '../components/common/LoadingState';
 import { StatusBadge } from '../components/status/StatusBadge';
 import type { ApiObject, ObjectType } from '../types/objects';
-import { getObjectTypeName } from '../utils/objectTypes';
+import { getObjectTypeName, isObjectType } from '../utils/objectTypes';
 
 type ObjectPageProps = {
   objectTypesById: Map<string, ObjectType>;
   onCurrentObjectChange: (object: ApiObject | null) => void;
   hasSpatial: boolean;
   hasSchematic: boolean;
+  schematicObjectIds?: Set<string>;
 };
 
 type ObjectPageState =
@@ -39,6 +40,7 @@ export function ObjectPage({
   onCurrentObjectChange,
   hasSpatial,
   hasSchematic,
+  schematicObjectIds = new Set<string>(),
 }: ObjectPageProps) {
   const { objectId } = useParams();
   const navigate = useNavigate();
@@ -95,6 +97,7 @@ export function ObjectPage({
       objectTypesById={objectTypesById}
       hasSpatial={hasSpatial}
       hasSchematic={hasSchematic}
+      schematicObjectIds={schematicObjectIds}
       onNavigate={(targetId) => navigate(`/objects/${targetId}`)}
       onOpenMap={(targetId) => navigate(`/map?objectId=${targetId}`)}
       onOpenSchematic={(targetId) => navigate(`/objects/${targetId}/schema`)}
@@ -110,6 +113,7 @@ type ObjectDetailsProps = {
   objectTypesById: Map<string, ObjectType>;
   hasSpatial?: boolean;
   hasSchematic?: boolean;
+  schematicObjectIds?: Set<string>;
   onNavigate: (objectId: string) => void;
   onOpenMap?: (objectId: string) => void;
   onOpenSchematic?: (objectId: string) => void;
@@ -123,12 +127,31 @@ export function ObjectDetails({
   objectTypesById,
   hasSpatial = false,
   hasSchematic = false,
+  schematicObjectIds = new Set<string>(),
   onNavigate,
   onOpenMap,
   onOpenSchematic,
 }: ObjectDetailsProps) {
   const breadcrumbItems = useMemo(() => [...ancestors, object], [ancestors, object]);
   const objectTypeName = getObjectTypeName(object.object_type_id, objectTypesById);
+  const isLocation = isObjectType(object.object_type_id, objectTypesById, 'location');
+
+  if (isLocation) {
+    return (
+      <LocationWorkflow
+        object={object}
+        parent={parent}
+        ancestors={ancestors}
+        children={children}
+        objectTypesById={objectTypesById}
+        hasSpatial={hasSpatial}
+        schematicObjectIds={schematicObjectIds}
+        onNavigate={onNavigate}
+        onOpenMap={onOpenMap}
+        onOpenSchematic={onOpenSchematic}
+      />
+    );
+  }
 
   return (
     <div className="page-stack">
@@ -226,6 +249,138 @@ export function ObjectDetails({
             ))}
           </div>
         )}
+      </section>
+    </div>
+  );
+}
+
+type LocationWorkflowProps = {
+  object: ApiObject;
+  parent: ApiObject | null;
+  ancestors: ApiObject[];
+  children: ApiObject[];
+  objectTypesById: Map<string, ObjectType>;
+  hasSpatial: boolean;
+  schematicObjectIds: Set<string>;
+  onNavigate: (objectId: string) => void;
+  onOpenMap?: (objectId: string) => void;
+  onOpenSchematic?: (objectId: string) => void;
+};
+
+export function LocationWorkflow({
+  object,
+  parent,
+  ancestors,
+  children,
+  objectTypesById,
+  hasSpatial,
+  schematicObjectIds,
+  onNavigate,
+  onOpenMap,
+  onOpenSchematic,
+}: LocationWorkflowProps) {
+  const breadcrumbItems = useMemo(() => [...ancestors, object], [ancestors, object]);
+  const facilityCount = children.length;
+  const schematicCount = children.filter((child) => schematicObjectIds.has(child.id)).length;
+
+  return (
+    <div className="page-stack">
+      <ObjectBreadcrumb items={breadcrumbItems} onNavigate={onNavigate} />
+
+      <section className="object-hero location-hero">
+        <div>
+          <span className="section-label">Location</span>
+          <h1>{object.name}</h1>
+          <p>Map-selected location. Continue into a facility or schematic from here.</p>
+        </div>
+        <div className="object-hero__actions">
+          <StatusBadge status={object.status} />
+          {hasSpatial && onOpenMap && (
+            <button className="secondary-button" type="button" onClick={() => onOpenMap(object.id)}>
+              <MapIcon size={16} />
+              View on Map
+            </button>
+          )}
+        </div>
+      </section>
+
+      <section className="location-workflow-grid">
+        <InfoPanel title="Location Status">
+          <Definition label="Status" value={object.status} display={<StatusBadge status={object.status} size="md" />} />
+          <Definition label="Facilities / systems" value={String(facilityCount)} />
+          <Definition label="Schematic entries" value={String(schematicCount)} />
+        </InfoPanel>
+
+        <InfoPanel title="Location Identity">
+          <Definition label="Object ID" value={object.id} />
+          <Definition label="Key" value={object.key} />
+          <Definition label="Parent" value={parent ? parent.name : 'Top-level location'} />
+        </InfoPanel>
+      </section>
+
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="section-label">Location Workflow</span>
+            <h2>Facilities and systems at this location</h2>
+          </div>
+          <span className="count-pill">{children.length}</span>
+        </div>
+
+        {children.length === 0 ? (
+          <EmptyState message="No facilities or systems are defined for this location yet." />
+        ) : (
+          <div className="facility-list">
+            {children.map((child) => {
+              const hasChildSchematic = schematicObjectIds.has(child.id);
+
+              return (
+                <article className="facility-card" key={child.id}>
+                  <button
+                    aria-label={`Open ${child.name}`}
+                    className="facility-card__main"
+                    type="button"
+                    onClick={() => onNavigate(child.id)}
+                  >
+                    <Building2 size={18} aria-hidden="true" />
+                    <span>
+                      <strong>{child.name}</strong>
+                      <small>
+                        {getObjectTypeName(child.object_type_id, objectTypesById)} · {child.key}
+                      </small>
+                    </span>
+                  </button>
+                  <div className="facility-card__actions">
+                    <StatusBadge status={child.status} size="sm" variant="compact" />
+                    {hasChildSchematic && onOpenSchematic && (
+                      <button
+                        className="secondary-button secondary-button--compact"
+                        type="button"
+                        onClick={() => onOpenSchematic(child.id)}
+                      >
+                        <GitBranch size={15} />
+                        Schema
+                      </button>
+                    )}
+                    <button className="icon-button" type="button" onClick={() => onNavigate(child.id)} aria-label={`Go to ${child.name}`}>
+                      <ChevronRight size={17} aria-hidden="true" />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="section-label">Properties</span>
+            <h2>Location data</h2>
+          </div>
+        </div>
+        <PropertiesView properties={object.properties} />
       </section>
     </div>
   );

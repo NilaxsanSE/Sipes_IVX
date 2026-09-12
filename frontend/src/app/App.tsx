@@ -166,6 +166,7 @@ function SipesApp() {
               onCurrentObjectChange={setCurrentObject}
               hasSpatial={selectedObjectId ? spatialObjectIds.has(selectedObjectId) : false}
               hasSchematic={selectedObjectId ? schematicObjectIds.has(selectedObjectId) : false}
+              schematicObjectIds={schematicObjectIds}
             />
           }
         />

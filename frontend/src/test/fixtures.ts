@@ -39,10 +39,28 @@ export const dresden = makeObject({
   status: 'WARNING',
 });
 
+export const storageFacility = makeObject({
+  id: 'object-storage-facility',
+  object_type_id: 'type-facility',
+  parent_id: dresden.id,
+  key: 'storage-facility',
+  name: 'Storage facility',
+  status: 'WARNING',
+});
+
+export const warehouse = makeObject({
+  id: 'object-warehouse',
+  object_type_id: 'type-facility',
+  parent_id: dresden.id,
+  key: 'warehouse',
+  name: 'Warehouse',
+  status: 'NORMAL',
+});
+
 export const fan = makeObject({
   id: 'object-fan-01',
   object_type_id: 'type-asset',
-  parent_id: dresden.id,
+  parent_id: storageFacility.id,
   key: 'fan-01',
   name: 'Fan 01',
   status: 'UNKNOWN',
