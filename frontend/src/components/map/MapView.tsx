@@ -139,12 +139,12 @@ export function MapView({
 
   return (
     <div className="map-view">
-      <div className="map-canvas" ref={containerRef} role="region" aria-label="Geographic map" />
+      <div className="map-canvas" ref={containerRef} role="region" aria-label="Location map" />
       <MapControls onResetView={resetView} />
       {mapError && <div className="map-overlay"><EmptyState message={mapError} /></div>}
       {features.length === 0 && !mapError && (
         <div className="map-overlay">
-          <EmptyState message="No geographic objects are available for this view." />
+          <EmptyState message="No locations with geographic coordinates are available for this view." />
         </div>
       )}
       {selectedFeature && (
@@ -158,7 +158,7 @@ export function MapView({
             type="button"
             onClick={() => onOpenObject(selectedFeature.properties.object_id)}
           >
-            Open Object
+            Open Location
           </button>
         </div>
       )}

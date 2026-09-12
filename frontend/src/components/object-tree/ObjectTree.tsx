@@ -36,7 +36,7 @@ export function ObjectTree({
   }
 
   if (nodes.length === 0) {
-    return <EmptyState message="No objects available." />;
+    return <EmptyState message="No locations available." />;
   }
 
   function toggleNode(objectId: string) {
@@ -52,7 +52,7 @@ export function ObjectTree({
   }
 
   return (
-    <nav aria-label="Object hierarchy" className="object-tree">
+    <nav aria-label="Location and facility hierarchy" className="object-tree">
       {nodes.map((node) => (
         <ObjectTreeItem
           key={node.id}

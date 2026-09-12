@@ -85,7 +85,7 @@ export function AppLayout({
 
         <label className="global-search">
           <Search size={18} aria-hidden="true" />
-          <input type="search" placeholder="Search objects, keys, status" aria-label="Global search" disabled />
+          <input type="search" placeholder="Search locations, facilities, status" aria-label="Global search" disabled />
         </label>
 
         <div className="header-actions">
@@ -108,12 +108,12 @@ export function AppLayout({
       </header>
 
       <div className={`app-body ${isSidebarCollapsed ? 'app-body--collapsed' : ''}`}>
-        <aside className="sidebar" aria-label="Object navigation">
+        <aside className="sidebar" aria-label="Location navigation">
           <div className="sidebar__header">
             {!isSidebarCollapsed && (
               <div>
-                <span className="section-label">Objects</span>
-                <strong>Hierarchy</strong>
+                <span className="section-label">Locations</span>
+                <strong>Facility tree</strong>
               </div>
             )}
             <button
@@ -144,9 +144,9 @@ export function AppLayout({
               <ArrowLeft size={16} />
               Back
             </button>
-            <button className="secondary-button" type="button" onClick={() => navigate('/')}>
+            <button className="secondary-button" type="button" onClick={() => navigate('/locations')}>
               <Home size={16} />
-              Overview
+              Locations
             </button>
             {currentObject && hasCurrentObjectSpatial && (
               <button

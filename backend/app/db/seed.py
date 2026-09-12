@@ -10,25 +10,82 @@ from app.models.view import View, ViewElement
 
 DEMO_TENANT_ID = UUID("11111111-1111-1111-1111-111111111111")
 
-DEMO_HIERARCHY = [
-    ("country", "germany", "Germany", "NORMAL"),
-    ("state", "sachsen", "Sachsen", "NORMAL"),
-    ("city", "dresden", "Dresden", "NORMAL"),
-    ("site", "site-01", "Site 01", "NORMAL"),
-    ("plant", "storage-plant", "Storage Plant", "WARNING"),
-    ("container", "container-01", "Container 01", "NORMAL"),
-    ("fan", "fan-01", "Fan 01", "UNKNOWN"),
+DEMO_OBJECTS = [
+    {
+        "type_key": "location",
+        "key": "dresden",
+        "name": "Dresden",
+        "status": "WARNING",
+        "parent_key": None,
+        "properties": {"workflow": "Map entry point with facility drill-down."},
+    },
+    {
+        "type_key": "facility",
+        "key": "storage-facility",
+        "name": "Storage facility",
+        "status": "WARNING",
+        "parent_key": "dresden",
+        "properties": {"overview": "Primary demo facility for schematic navigation."},
+    },
+    {
+        "type_key": "facility",
+        "key": "warehouse",
+        "name": "Warehouse",
+        "status": "NORMAL",
+        "parent_key": "dresden",
+        "properties": {"overview": "Second Dresden facility."},
+    },
+    {
+        "type_key": "unit",
+        "key": "unit-2",
+        "name": "Unit 2",
+        "status": "WARNING",
+        "parent_key": "storage-facility",
+        "properties": {"area": "Storage facility"},
+    },
+    {
+        "type_key": "fan",
+        "key": "fan-01",
+        "name": "Fan 01",
+        "status": "ERROR",
+        "parent_key": "unit-2",
+        "properties": {"rpm": 1480, "bearing": {"temperature": 72}},
+    },
+    {
+        "type_key": "location",
+        "key": "leipzig",
+        "name": "Leipzig",
+        "status": "ERROR",
+        "parent_key": None,
+        "properties": {"workflow": "Map entry point."},
+    },
+    {
+        "type_key": "location",
+        "key": "munich",
+        "name": "Munich",
+        "status": "NORMAL",
+        "parent_key": None,
+        "properties": {"workflow": "Map entry point."},
+    },
+    {
+        "type_key": "location",
+        "key": "hamburg",
+        "name": "Hamburg",
+        "status": "UNKNOWN",
+        "parent_key": None,
+        "properties": {"workflow": "Technical status-data issue."},
+    },
 ]
 
 DEMO_SPATIAL_POINTS = {
-    "germany": {"longitude": 10.4515, "latitude": 51.1657, "source": "demo-wgs84"},
-    "sachsen": {"longitude": 13.4589, "latitude": 51.1045, "source": "demo-wgs84"},
     "dresden": {"longitude": 13.7373, "latitude": 51.0504, "source": "demo-wgs84"},
-    "site-01": {"longitude": 13.7557, "latitude": 51.0348, "source": "demo-wgs84"},
+    "leipzig": {"longitude": 12.3731, "latitude": 51.3397, "source": "demo-wgs84"},
+    "munich": {"longitude": 11.5820, "latitude": 48.1351, "source": "demo-wgs84"},
+    "hamburg": {"longitude": 9.9937, "latitude": 53.5511, "source": "demo-wgs84"},
 }
 
 DEMO_STORAGE_PLANT_SCHEMATIC = {
-    "name": "Storage Plant Schematic",
+    "name": "Storage facility schematic",
     "configuration": {
         "drawio": {
             "enabled": True,
@@ -38,12 +95,12 @@ DEMO_STORAGE_PLANT_SCHEMATIC = {
         "canvas": {"width": 860, "height": 300},
     },
     "elements": {
-        "container-01": {
+        "unit-2": {
             "x": 160,
             "y": 92,
             "width": 250,
             "height": 116,
-            "shape": "container",
+            "shape": "unit",
         },
         "fan-01": {
             "x": 520,
@@ -76,39 +133,83 @@ async def _get_or_create_object_type(session, key: str, name: str) -> ObjectType
 
 async def seed_demo_data() -> None:
     async with AsyncSessionLocal() as session:
-        parent_id = None
+        await session.execute(
+            text(
+                """
+                DELETE FROM object_spatial
+                WHERE object_id IN (
+                    SELECT id FROM objects WHERE tenant_id = :tenant_id
+                )
+                """
+            ),
+            {"tenant_id": DEMO_TENANT_ID},
+        )
+        await session.execute(
+            text(
+                """
+                DELETE FROM view_elements
+                WHERE view_id IN (
+                    SELECT views.id
+                    FROM views
+                    JOIN objects ON objects.id = views.object_id
+                    WHERE objects.tenant_id = :tenant_id
+                )
+                """
+            ),
+            {"tenant_id": DEMO_TENANT_ID},
+        )
+        await session.execute(
+            text(
+                """
+                DELETE FROM view_elements
+                WHERE object_id IN (
+                    SELECT id FROM objects WHERE tenant_id = :tenant_id
+                )
+                """
+            ),
+            {"tenant_id": DEMO_TENANT_ID},
+        )
+        await session.execute(
+            text(
+                """
+                DELETE FROM views
+                WHERE object_id IN (
+                    SELECT id FROM objects WHERE tenant_id = :tenant_id
+                )
+                """
+            ),
+            {"tenant_id": DEMO_TENANT_ID},
+        )
+        await session.execute(
+            text("UPDATE objects SET parent_id = NULL WHERE tenant_id = :tenant_id"),
+            {"tenant_id": DEMO_TENANT_ID},
+        )
+        await session.execute(text("DELETE FROM objects WHERE tenant_id = :tenant_id"), {"tenant_id": DEMO_TENANT_ID})
+        await session.flush()
+
         seeded_objects: dict[str, Object] = {}
 
-        for type_key, object_key, object_name, status in DEMO_HIERARCHY:
+        for demo_object in DEMO_OBJECTS:
             object_type = await _get_or_create_object_type(
                 session,
-                key=type_key,
-                name=type_key.replace("-", " ").title(),
+                key=demo_object["type_key"],
+                name=demo_object["type_key"].replace("-", " ").title(),
             )
 
-            object_item = await session.scalar(
-                select(Object).where(Object.tenant_id == DEMO_TENANT_ID, Object.key == object_key)
+            parent_key = demo_object["parent_key"]
+            parent_id = seeded_objects[parent_key].id if parent_key else None
+            object_item = Object(
+                tenant_id=DEMO_TENANT_ID,
+                object_type_id=object_type.id,
+                parent_id=parent_id,
+                key=demo_object["key"],
+                name=demo_object["name"],
+                properties=demo_object["properties"],
+                status=demo_object["status"],
             )
-            if object_item is None:
-                object_item = Object(
-                    tenant_id=DEMO_TENANT_ID,
-                    object_type_id=object_type.id,
-                    parent_id=parent_id,
-                    key=object_key,
-                    name=object_name,
-                    properties={},
-                    status=status,
-                )
-                session.add(object_item)
-                await session.flush()
-            else:
-                object_item.object_type_id = object_type.id
-                object_item.parent_id = parent_id
-                object_item.name = object_name
-                object_item.status = status
-
-            parent_id = object_item.id
-            seeded_objects[object_key] = object_item
+            session.add(object_item)
+            await session.flush()
+            seeded_objects[demo_object["key"]] = object_item
 
         for object_key, point in DEMO_SPATIAL_POINTS.items():
             object_item = seeded_objects[object_key]
@@ -146,7 +247,7 @@ async def seed_demo_data() -> None:
                 },
             )
 
-        storage_plant = seeded_objects["storage-plant"]
+        storage_plant = seeded_objects["storage-facility"]
         schematic_view = await session.scalar(
             select(View).where(View.object_id == storage_plant.id, View.type == "SCHEMATIC")
         )

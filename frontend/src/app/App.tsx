@@ -140,12 +140,12 @@ function SipesApp() {
       schematicObjectIds={schematicObjectIds}
     >
       <Routes>
+        <Route path="/" element={<Navigate to="/map" replace />} />
         <Route
-          path="/"
+          path="/locations"
           element={
             <OverviewPage
               objects={state.objects}
-              roots={state.tree}
               objectTypesById={objectTypesById}
             />
           }

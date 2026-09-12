@@ -5,8 +5,9 @@ const tenantId = '11111111-1111-1111-1111-111111111111';
 
 export const objectTypes: ObjectType[] = [
   makeObjectType('type-location', 'Location'),
-  makeObjectType('type-site', 'Site'),
-  makeObjectType('type-asset', 'Asset'),
+  makeObjectType('type-facility', 'Facility'),
+  makeObjectType('type-unit', 'Unit'),
+  makeObjectType('type-asset', 'Fan'),
 ];
 
 export const objectTypesById = new Map(objectTypes.map((objectType) => [objectType.id, objectType]));
@@ -70,19 +71,6 @@ export const demoGeoJson: SpatialFeatureCollection = {
   features: [
     {
       type: 'Feature',
-      geometry: { type: 'Point', coordinates: [13.7557, 51.0348] },
-      properties: {
-        object_id: 'object-site-01',
-        name: 'Site 01',
-        key: 'site-01',
-        status: 'NORMAL',
-        object_type: 'Site',
-        altitude: null,
-        source: 'demo-wgs84',
-      },
-    },
-    {
-      type: 'Feature',
       geometry: { type: 'Point', coordinates: [13.7373, 51.0504] },
       properties: {
         object_id: dresden.id,
@@ -90,6 +78,19 @@ export const demoGeoJson: SpatialFeatureCollection = {
         key: 'dresden',
         status: 'WARNING',
         object_type: 'Location',
+        altitude: null,
+        source: 'demo-wgs84',
+      },
+    },
+    {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [13.7557, 51.0348] },
+      properties: {
+        object_id: 'object-unit-2',
+        name: 'Unit 2',
+        key: 'unit-2',
+        status: 'WARNING',
+        object_type: 'Unit',
         altitude: null,
         source: 'demo-wgs84',
       },

@@ -50,7 +50,7 @@ describe('MapPage', () => {
     const user = userEvent.setup();
 
     render(
-      <MemoryRouter initialEntries={['/map?objectId=object-site-01']}>
+      <MemoryRouter initialEntries={['/map?objectId=object-dresden']}>
         <Routes>
           <Route path="/map" element={<MapPage />} />
           <Route path="/objects/:objectId" element={<LocationProbe />} />
@@ -58,12 +58,13 @@ describe('MapPage', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByTestId('map-view')).toHaveTextContent('selected:object-site-01');
+    expect(await screen.findByTestId('map-view')).toHaveTextContent('selected:object-dresden');
     expect(getSpatialGeoJson).toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'Marker Unit 2' })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Marker Site 01' }));
+    await user.click(screen.getByRole('button', { name: 'Marker Dresden' }));
 
-    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/objects/object-site-01'));
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/objects/object-dresden'));
   });
 
   it('shows a safe message when the selected object has no spatial data', async () => {

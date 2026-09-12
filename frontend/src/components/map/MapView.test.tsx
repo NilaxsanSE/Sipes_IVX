@@ -57,14 +57,14 @@ describe('MapView', () => {
     render(
       <MapView
         features={demoGeoJson.features}
-        selectedObjectId="object-site-01"
+        selectedObjectId="object-dresden"
         onOpenObject={vi.fn()}
       />,
     );
 
-    expect(screen.getByRole('region', { name: 'Geographic map' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Location map' })).toBeInTheDocument();
     await waitFor(() => expect(markerElements).toHaveLength(2));
-    expect(markerElements[0]).toHaveAttribute('aria-label', 'Open Site 01');
+    expect(markerElements[0]).toHaveAttribute('aria-label', 'Open Dresden');
     expect(mapOptions[0]).toMatchObject({
       dragPan: true,
       scrollZoom: true,
@@ -81,18 +81,18 @@ describe('MapView', () => {
     render(
       <MapView
         features={demoGeoJson.features}
-        selectedObjectId="object-site-01"
+        selectedObjectId="object-dresden"
         onOpenObject={onOpenObject}
       />,
     );
 
     await waitFor(() => expect(markerElements).toHaveLength(2));
-    expect(markerElements[0].style.background).toBe('rgb(31, 143, 95)');
-    expect(screen.getByText('NORMAL')).toBeInTheDocument();
+    expect(markerElements[0].style.background).toBe('rgb(183, 121, 31)');
+    expect(screen.getByText('WARNING')).toBeInTheDocument();
 
     await user.click(markerElements[0]);
 
-    expect(onOpenObject).toHaveBeenCalledWith('object-site-01');
+    expect(onOpenObject).toHaveBeenCalledWith('object-dresden');
   });
 
   it('updates marker selection without recreating markers', async () => {
@@ -101,7 +101,7 @@ describe('MapView', () => {
     const { rerender } = render(
       <MapView
         features={demoGeoJson.features}
-        selectedObjectId="object-site-01"
+        selectedObjectId="object-dresden"
         onOpenObject={vi.fn()}
       />,
     );
@@ -112,7 +112,7 @@ describe('MapView', () => {
     rerender(
       <MapView
         features={demoGeoJson.features}
-        selectedObjectId="object-dresden"
+        selectedObjectId="object-unit-2"
         onOpenObject={vi.fn()}
       />,
     );
@@ -125,6 +125,6 @@ describe('MapView', () => {
   it('handles objects without spatial data by showing an empty map state', () => {
     render(<MapView features={[]} onOpenObject={vi.fn()} />);
 
-    expect(screen.getByText('No geographic objects are available for this view.')).toBeInTheDocument();
+    expect(screen.getByText('No locations with geographic coordinates are available for this view.')).toBeInTheDocument();
   });
 });

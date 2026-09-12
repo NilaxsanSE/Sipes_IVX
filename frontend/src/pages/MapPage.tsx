@@ -34,12 +34,20 @@ export function MapPage() {
     void loadGeoJson();
   }, [loadGeoJson]);
 
+  const locationFeatures = useMemo(() => {
+    if (state.status !== 'ready') {
+      return [];
+    }
+
+    return state.geojson.features.filter((feature) => feature.properties.object_type.toLowerCase() === 'location');
+  }, [state]);
+
   const selectedFeature = useMemo(() => {
-    if (state.status !== 'ready' || !selectedObjectId) {
+    if (!selectedObjectId) {
       return null;
     }
-    return state.geojson.features.find((feature) => feature.properties.object_id === selectedObjectId) ?? null;
-  }, [selectedObjectId, state]);
+    return locationFeatures.find((feature) => feature.properties.object_id === selectedObjectId) ?? null;
+  }, [locationFeatures, selectedObjectId]);
 
   if (state.status === 'loading') {
     return <LoadingState label="Loading geographic objects" />;
@@ -54,12 +62,12 @@ export function MapPage() {
       <section className="page-heading map-heading">
         <div>
           <span className="section-label">Geographic View</span>
-          <h1>IVX Map</h1>
-          <p>Spatial view of IVX objects with PostGIS point geometry.</p>
+          <h1>Location Map</h1>
+          <p>Operational starting point showing locations with geographic coordinates.</p>
         </div>
         <div className="map-summary">
-          <strong>{state.geojson.features.length}</strong>
-          <span>geographic objects</span>
+          <strong>{locationFeatures.length}</strong>
+          <span>locations</span>
         </div>
       </section>
 
@@ -70,8 +78,8 @@ export function MapPage() {
       )}
 
       <section className="panel map-panel">
-        <MapView
-          features={state.geojson.features}
+          <MapView
+          features={locationFeatures}
           selectedObjectId={selectedObjectId}
           onOpenObject={(objectId) => navigate(`/objects/${objectId}`)}
         />
@@ -80,12 +88,12 @@ export function MapPage() {
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="section-label">Map Objects</span>
-            <h2>Objects with spatial data</h2>
+            <span className="section-label">Locations</span>
+            <h2>Status overview</h2>
           </div>
         </div>
         <div className="map-object-list">
-          {state.geojson.features.map((feature) => (
+          {locationFeatures.map((feature) => (
             <button
               aria-label={`Open ${feature.properties.name}`}
               className="object-list__item"

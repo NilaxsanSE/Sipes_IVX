@@ -26,9 +26,9 @@
   --error: #b53939;
   --error-bg: #fff0f0;
   --error-border: #e9b0b0;
-  --unknown: #5f6b7a;
-  --unknown-bg: #f1f4f7;
-  --unknown-border: #ccd5df;
+  --unknown: #2563a8;
+  --unknown-bg: #eef6ff;
+  --unknown-border: #b9d8f5;
   color: var(--text);
   background: var(--page-bg);
   font-family:
@@ -68,9 +68,9 @@
   --error: #f07171;
   --error-bg: rgba(240, 113, 113, 0.13);
   --error-border: rgba(240, 113, 113, 0.36);
-  --unknown: #a5b1c2;
-  --unknown-bg: rgba(165, 177, 194, 0.12);
-  --unknown-border: rgba(165, 177, 194, 0.32);
+  --unknown: #77bdfb;
+  --unknown-bg: rgba(119, 189, 251, 0.12);
+  --unknown-border: rgba(119, 189, 251, 0.34);
 }
 
 * {
@@ -363,7 +363,7 @@ iframe:focus-visible {
 .metric-grid,
 .detail-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
@@ -412,6 +412,47 @@ iframe:focus-visible {
 
 .metric-card--error {
   border-top: 4px solid var(--error);
+}
+
+.metric-card--unknown {
+  border-top: 4px solid var(--unknown);
+}
+
+.status-group-list {
+  display: grid;
+  gap: 16px;
+}
+
+.status-group {
+  display: grid;
+  gap: 8px;
+}
+
+.status-group__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.status-group__header > span {
+  min-width: 0;
+  flex: 1;
+}
+
+.status-group__header > strong {
+  display: inline-flex;
+  min-width: 28px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
 }
 
 .panel {

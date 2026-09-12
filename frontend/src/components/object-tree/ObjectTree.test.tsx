@@ -53,7 +53,7 @@ describe('ObjectTree', () => {
   it('shows empty and no-children states', () => {
     const { rerender } = render(<ObjectTree nodes={[]} objectTypesById={objectTypesById} onSelect={vi.fn()} />);
 
-    expect(screen.getByText('No objects available.')).toBeInTheDocument();
+    expect(screen.getByText('No locations available.')).toBeInTheDocument();
 
     rerender(<ObjectTree nodes={makeTreeChain(1)} objectTypesById={objectTypesById} onSelect={vi.fn()} />);
 
