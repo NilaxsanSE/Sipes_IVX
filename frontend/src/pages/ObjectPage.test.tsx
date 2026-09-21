@@ -33,6 +33,8 @@ describe('ObjectDetails', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Storage facility' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Workflow path')).toHaveTextContent('LocationFacilitySystem / assetSchema available');
+    expect(screen.getByRole('heading', { name: 'Systems and assets in this facility' })).toBeInTheDocument();
     expect(screen.getAllByText('WARNING')).toHaveLength(2);
     expect(screen.getAllByText('Dresden')).toHaveLength(2);
     expect(screen.getByText('Fan 01')).toBeInTheDocument();
@@ -65,9 +67,14 @@ describe('ObjectDetails', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Dresden' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Workflow path')).toHaveTextContent('MapDresdenFacility / systemSchema');
     expect(screen.getByRole('heading', { name: 'Facilities and systems at this location' })).toBeInTheDocument();
     expect(screen.getByText('Storage facility')).toBeInTheDocument();
     expect(screen.getByText('Warehouse')).toBeInTheDocument();
+    expect(screen.getByText('2 facilities / systems')).toBeInTheDocument();
+    expect(screen.getByText('1 schema-ready')).toBeInTheDocument();
+    expect(screen.getByText('Schema-ready workflow')).toBeInTheDocument();
+    expect(screen.getByText('Open facility details')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Schema' }));
     expect(onOpenSchematic).toHaveBeenCalledWith(storageFacility.id);

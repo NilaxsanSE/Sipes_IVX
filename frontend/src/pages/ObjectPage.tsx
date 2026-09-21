@@ -135,6 +135,11 @@ export function ObjectDetails({
   const breadcrumbItems = useMemo(() => [...ancestors, object], [ancestors, object]);
   const objectTypeName = getObjectTypeName(object.object_type_id, objectTypesById);
   const isLocation = isObjectType(object.object_type_id, objectTypesById, 'location');
+  const isFacility = isObjectType(object.object_type_id, objectTypesById, 'facility');
+  const containedTitle = isFacility ? 'Systems and assets in this facility' : 'Direct children';
+  const emptyContainedMessage = isFacility
+    ? 'No systems or assets are defined for this facility yet.'
+    : 'This object does not contain any direct children.';
 
   if (isLocation) {
     return (
@@ -161,7 +166,11 @@ export function ObjectDetails({
         <div>
           <span className="section-label">{objectTypeName}</span>
           <h1>{object.name}</h1>
-          <p>{object.key}</p>
+          <p>
+            {isFacility
+              ? 'Facility workspace. Continue into systems/assets or open the schematic.'
+              : object.key}
+          </p>
         </div>
         <div className="object-hero__actions">
           <StatusBadge status={object.status} />
@@ -179,6 +188,17 @@ export function ObjectDetails({
           )}
         </div>
       </section>
+
+      {isFacility && (
+        <WorkflowPath
+          items={[
+            'Location',
+            objectTypeName,
+            children.length > 0 ? 'System / asset' : 'Systems pending',
+            hasSchematic ? 'Schema available' : 'Schema pending',
+          ]}
+        />
+      )}
 
       <section className="detail-grid">
         <InfoPanel title="Object Details">
@@ -220,13 +240,13 @@ export function ObjectDetails({
         <div className="panel__header">
           <div>
             <span className="section-label">Contained Objects</span>
-            <h2>Direct children</h2>
+            <h2>{containedTitle}</h2>
           </div>
           <span className="count-pill">{children.length}</span>
         </div>
 
         {children.length === 0 ? (
-          <EmptyState message="This object does not contain any direct children." />
+          <EmptyState message={emptyContainedMessage} />
         ) : (
           <div className="object-list">
             {children.map((child) => (
@@ -282,6 +302,10 @@ export function LocationWorkflow({
   const breadcrumbItems = useMemo(() => [...ancestors, object], [ancestors, object]);
   const facilityCount = children.length;
   const schematicCount = children.filter((child) => schematicObjectIds.has(child.id)).length;
+  const statusCounts = children.reduce<Record<string, number>>((counts, child) => {
+    counts[child.status] = (counts[child.status] ?? 0) + 1;
+    return counts;
+  }, {});
 
   return (
     <div className="page-stack">
@@ -304,6 +328,8 @@ export function LocationWorkflow({
         </div>
       </section>
 
+      <WorkflowPath items={['Map', object.name, 'Facility / system', 'Schema']} />
+
       <section className="location-workflow-grid">
         <InfoPanel title="Location Status">
           <Definition label="Status" value={object.status} display={<StatusBadge status={object.status} size="md" />} />
@@ -316,6 +342,13 @@ export function LocationWorkflow({
           <Definition label="Key" value={object.key} />
           <Definition label="Parent" value={parent ? parent.name : 'Top-level location'} />
         </InfoPanel>
+      </section>
+
+      <section className="system-summary">
+        <span>{facilityCount} facilities / systems</span>
+        <span>{schematicCount} schema-ready</span>
+        <span>{statusCounts.ERROR ?? 0} error</span>
+        <span>{statusCounts.WARNING ?? 0} warning</span>
       </section>
 
       <section className="panel">
@@ -342,12 +375,17 @@ export function LocationWorkflow({
                     type="button"
                     onClick={() => onNavigate(child.id)}
                   >
-                    <Building2 size={18} aria-hidden="true" />
+                    {hasChildSchematic ? (
+                      <GitBranch size={18} aria-hidden="true" />
+                    ) : (
+                      <Building2 size={18} aria-hidden="true" />
+                    )}
                     <span>
                       <strong>{child.name}</strong>
                       <small>
                         {getObjectTypeName(child.object_type_id, objectTypesById)} · {child.key}
                       </small>
+                      <em>{hasChildSchematic ? 'Schema-ready workflow' : 'Open facility details'}</em>
                     </span>
                   </button>
                   <div className="facility-card__actions">
@@ -383,6 +421,23 @@ export function LocationWorkflow({
         <PropertiesView properties={object.properties} />
       </section>
     </div>
+  );
+}
+
+type WorkflowPathProps = {
+  items: string[];
+};
+
+function WorkflowPath({ items }: WorkflowPathProps) {
+  return (
+    <nav aria-label="Workflow path" className="workflow-path">
+      {items.map((item, index) => (
+        <span className="workflow-path__item" key={`${item}-${index}`}>
+          <span>{item}</span>
+          {index < items.length - 1 && <ChevronRight size={14} aria-hidden="true" />}
+        </span>
+      ))}
+    </nav>
   );
 }
 

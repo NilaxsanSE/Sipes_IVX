@@ -506,6 +506,56 @@ iframe:focus-visible {
   gap: 14px;
 }
 
+.workflow-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 10px 12px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.workflow-path__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.workflow-path__item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflow-path__item:last-child {
+  color: var(--accent-strong);
+}
+
+.system-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.system-summary span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
 .object-tree {
   height: calc(100vh - 129px);
   overflow: auto;
@@ -792,7 +842,8 @@ iframe:focus-visible {
 }
 
 .facility-card__main strong,
-.facility-card__main small {
+.facility-card__main small,
+.facility-card__main em {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -806,6 +857,13 @@ iframe:focus-visible {
 .facility-card__main small {
   color: var(--text-muted);
   font-size: 0.83rem;
+}
+
+.facility-card__main em {
+  color: var(--accent-strong);
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 750;
 }
 
 .facility-card__actions {
@@ -1279,7 +1337,8 @@ iframe:focus-visible {
   }
 
   .metric-grid,
-  .detail-grid {
+  .detail-grid,
+  .location-workflow-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1304,6 +1363,14 @@ iframe:focus-visible {
 
   .map-object-list {
     grid-template-columns: 1fr;
+  }
+
+  .facility-card {
+    grid-template-columns: 1fr;
+  }
+
+  .facility-card__actions {
+    justify-content: flex-start;
   }
 
   .schematic-canvas {
